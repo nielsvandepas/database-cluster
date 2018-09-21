@@ -34,6 +34,18 @@ services:
       replicas: 0
     secrets:
       - xtrabackup_password
+  admin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_HOST=node.database
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
+    networks:
+      - galera-cluster
+      - public
+    ports:
+      - 8080:80
+    secrets:
+      - mysql_root_password
 
 volumes:
   mysql-data:
@@ -42,7 +54,11 @@ volumes:
 
 networks:
   galera-cluster:
-    driver: overlay
+    external:
+      name: database
+  public:
+    external:
+      name: bridge
 
 secrets:
   xtrabackup_password:
